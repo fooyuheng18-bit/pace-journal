@@ -1,1 +1,447 @@
-undefined
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Pace Journal: a 60-second check-in, pattern view, small steps and support ladder for students.">
+<title>Pace Journal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+
+/* Layout: one phone-width column, a quiet header, content cards by role, and a fixed bottom tab bar */
+:root{
+  --bg:#f3f5f0; --surface:#ffffff; --ink:#1f2d27; --muted:#5b6a62; --line:#dbe2dc;
+  --sage:#9eb9a5; --sage-soft:#e2ece4; --lilac:#b7a4cf; --lilac-soft:#ece6f4; --coral:#c9654a; --coral-soft:#f7e3dc;
+  --p1:#c9654a; --p2:#d99a72; --p3:#b9b3a4; --p4:#8fb39a; --p5:#5f9a75;
+  --focus:#6b4fa0;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a17; --surface:#1d2521; --ink:#e8eee9; --muted:#a3b1a8; --line:#2f3a34;
+  --sage:#7fa08a; --sage-soft:#24332b; --lilac:#a993c6; --lilac-soft:#2b2636; --coral:#e8876b; --coral-soft:#3a2620;
+  --p1:#e8876b; --p2:#e0a982; --p3:#8d8879; --p4:#7fae8e; --p5:#8fd0a5; --focus:#c3b0e6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a17; --surface:#1d2521; --ink:#e8eee9; --muted:#a3b1a8; --line:#2f3a34;
+  --sage:#7fa08a; --sage-soft:#24332b; --lilac:#a993c6; --lilac-soft:#2b2636; --coral:#e8876b; --coral-soft:#3a2620;
+  --p1:#e8876b; --p2:#e0a982; --p3:#8d8879; --p4:#7fae8e; --p5:#8fd0a5; --focus:#c3b0e6; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:560px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:1.9rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.3rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:20px 8px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{flex:none}
+.brand b{font-family:var(--display);font-size:1.15rem}
+.date{font-size:.9rem;color:var(--muted);text-align:right}
+main{display:flex;flex-direction:column;gap:16px;padding-block:8px 24px}
+section[data-view]{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card.soft{background:var(--sage-soft);border-color:transparent}
+.card.lilac{background:var(--lilac-soft);border-color:transparent}
+.card.alert{background:var(--coral-soft);border-color:transparent}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+button,.btn{font:inherit;cursor:pointer;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+button.primary,.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted);text-decoration:underline;padding-inline:4px}
+button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button:disabled{opacity:.5;cursor:not-allowed}
+/* pace scale */
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.scale button{flex-direction:column;border-radius:12px;padding:10px 4px;gap:4px;min-height:84px;font-size:.82rem;line-height:1.2}
+.scale .dot{width:22px;height:22px;border-radius:50%;background:var(--c);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.scale button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);background:var(--bg);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{padding:8px 14px;min-height:40px;font-size:.95rem}
+.chips button[aria-pressed="true"]{background:var(--lilac-soft);border-color:var(--lilac);font-weight:700}
+.chips button[aria-pressed="true"]::before{content:"✓";font-weight:700}
+.rhythm{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rhythm button{flex-direction:column;border-radius:12px;font-size:.85rem;padding:10px 4px;line-height:1.2}
+.rhythm button b{font-family:var(--display);font-size:.95rem}
+.rhythm button[aria-pressed="true"]{background:var(--sage-soft);border-color:var(--sage)}
+textarea{font:inherit;width:100%;min-height:84px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);color:var(--ink);resize:vertical}
+label.lbl{font-weight:700}
+.timer{font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--muted)}
+.steplist{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.steplist li{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px}
+.steplist li:first-child{border-top:0;padding-top:0}
+.steplist li span{min-width:0}
+.steplist button{flex:none;padding:6px 12px;min-height:38px;font-size:.88rem}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700;background:var(--bg);border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted);line-height:1.25}
+.chart{width:100%;height:auto;display:block}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:110px 1fr 28px;gap:10px;align-items:center;font-size:.92rem}
+.bar .track{height:12px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.bar .fill{height:100%;background:var(--lilac)}
+.bar .n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.ladder{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.ladder li{display:grid;grid-template-columns:32px 1fr;gap:12px;padding-block:12px;border-top:1px solid var(--line)}
+.ladder li:first-child{border-top:0}
+.ladder .lvl{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.85rem;background:var(--sage-soft)}
+.ladder li.urgent .lvl{background:var(--coral);color:#fff}
+.num{font-family:var(--display);font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;user-select:all}
+.contact{display:flex;flex-direction:column;gap:6px;min-width:0}
+.contact .row button{padding:6px 12px;min-height:38px;font-size:.88rem}
+a{color:var(--ink);text-underline-offset:3px}
+.banner{border-radius:12px;padding:12px 14px;background:var(--lilac-soft);font-size:.92rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:.92rem;z-index:30}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));padding-block:6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav.tabs ul{max-width:560px;margin:0 auto;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--muted);font-size:.78rem;padding:6px 2px;border-radius:12px;min-height:52px;justify-content:center}
+nav.tabs a svg{width:22px;height:22px}
+nav.tabs a[aria-current="page"]{color:var(--ink);background:var(--sage-soft);font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+footer.note{font-size:.82rem;color:var(--muted);text-align:center;padding-block:4px 8px}
+@media (max-width:380px){.scale button{font-size:.72rem}.bar{grid-template-columns:90px 1fr 24px}}
+@media (prefers-reduced-motion:no-preference){.card{animation:rise .25s ease-out both}@keyframes rise{from{transform:translateY(4px)}to{transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="var(--sage-soft)"/><path d="M8 21c3-6 6-6 9 0s6 6 9 0" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <b>Pace Journal</b>
+    </div>
+    <div class="date" id="today-date"></div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <!-- TODAY -->
+    <section data-view="today" aria-labelledby="h-today">
+      <div class="alert card" id="low-streak" hidden role="status">
+        <h2>Three heavy days in a row</h2>
+        <p>That is a signal worth acting on. You don't have to wait until it gets worse to talk to someone.</p>
+        <div class="row"><a class="btn primary" href="#support">See who to reach out to</a></div>
+      </div>
+
+      <form class="card" id="checkin" aria-labelledby="h-today">
+        <div class="row between">
+          <h1 id="h-today">60-second check-in</h1>
+          <span class="timer" id="timer" aria-live="off">0:00</span>
+        </div>
+        <p class="muted small" id="checkin-status">How is your pace today? Pick what fits; there is no right answer.</p>
+
+        <fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+          <legend class="lbl">1. Your pace today</legend>
+          <div class="scale" id="scale"></div>
+        </fieldset>
+
+        <fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+          <legend class="lbl">2. What affected your pace?</legend>
+          <div class="chips" id="tags"></div>
+        </fieldset>
+
+        <fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+          <legend class="lbl">3. Rest &amp; rhythm today</legend>
+          <div class="rhythm" id="rhythm"></div>
+        </fieldset>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label class="lbl" for="note">4. One line for yourself <span class="muted small">(optional)</span></label>
+          <textarea id="note" maxlength="400" placeholder="I noticed the trigger before it became a spiral…"></textarea>
+        </div>
+
+        <div class="row between">
+          <button type="submit" class="primary" id="save">Save check-in</button>
+          <span class="muted small">Saved only on this device.</span>
+        </div>
+      </form>
+
+      <div class="card soft" id="today-step">
+        <span class="eyebrow">Your one small step</span>
+        <p id="step-text">Save a check-in and pick one small step that fits today.</p>
+        <div class="row" id="step-actions"></div>
+      </div>
+    </section>
+
+    <!-- PATTERNS -->
+    <section data-view="patterns" aria-labelledby="h-patterns" hidden>
+      <h1 id="h-patterns">Spot patterns</h1>
+      <p class="banner" id="example-banner" hidden>You haven't saved any check-ins yet, so this shows an <b>example fortnight</b>. Your own check-ins replace it as soon as you save one.</p>
+      <div class="stats" id="stats"></div>
+      <div class="card">
+        <h2>Pace over 14 days</h2>
+        <svg class="chart" id="chart" viewBox="0 0 520 210" role="img" aria-labelledby="chart-title"><title id="chart-title">Pace for each of the last 14 days</title></svg>
+        <p class="muted small">1 = drained · 5 = energised. Gaps are days without a check-in.</p>
+      </div>
+      <div class="card">
+        <h2>What shows up on heavy days</h2>
+        <p class="muted small">Triggers you tagged on days rated 1 or 2.</p>
+        <div class="bars" id="trigger-bars"></div>
+      </div>
+      <div class="card lilac">
+        <h2>What helps</h2>
+        <p id="insight"></p>
+      </div>
+    </section>
+
+    <!-- STEPS -->
+    <section data-view="steps" aria-labelledby="h-steps" hidden>
+      <h1 id="h-steps">Choose one small step</h1>
+      <p class="muted">Small enough to do today. Pick one; you can always change it.</p>
+      <div id="step-groups" style="display:flex;flex-direction:column;gap:16px"></div>
+    </section>
+
+    <!-- SUPPORT -->
+    <section data-view="support" aria-labelledby="h-support" hidden>
+      <h1 id="h-support">Get support</h1>
+      <p class="muted">Reaching out early is a skill, not a failure. Start wherever feels right; you can skip steps.</p>
+
+      <div class="card alert">
+        <h2>If you might hurt yourself or someone is in danger</h2>
+        <div class="contact">
+          <span>Emergency ambulance (24 hours)</span>
+          <div class="row"><span class="num">995</span><button type="button" data-copy="995">Copy</button></div>
+          <span class="muted small">Or go to the nearest hospital emergency department.</span>
+        </div>
+        <div class="contact">
+          <span>Samaritans of Singapore, crisis line (24 hours)</span>
+          <div class="row"><span class="num">1767</span><button type="button" data-copy="1767">Copy</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Escalate when needed</h2>
+        <ol class="ladder">
+          <li><span class="lvl" aria-hidden="true">1</span><div><h3>Steady yourself</h3><p class="muted small">Pick a small step, rest, eat, or step away from your phone for 10 minutes.</p></div></li>
+          <li><span class="lvl" aria-hidden="true">2</span><div><h3>Tell someone you trust</h3><p class="muted small">A friend, sibling or parent. "This week has felt heavy" is enough to start.</p></div></li>
+          <li><span class="lvl" aria-hidden="true">3</span><div><h3>Your Pace Circle or school counsellor</h3><p class="muted small">Peer leaders are trained to listen and to connect you with your school counsellor.</p></div></li>
+          <li><span class="lvl" aria-hidden="true">4</span><div class="contact"><h3>National Mindline 1771 (24 hours)</h3>
+            <div class="row"><span class="num">1771</span><button type="button" data-copy="1771">Copy</button></div>
+            <p class="muted small">WhatsApp <span style="user-select:all">6669 1771</span>, or chat online at <a href="https://www.mindline.sg/fsmh" target="_blank" rel="noopener">mindline.sg/fsmh</a>.</p></div></li>
+          <li><span class="lvl" aria-hidden="true">5</span><div><h3>CHAT, for ages 16 to 30</h3><p class="muted small">Free mental health check-ins and assessments by the Institute of Mental Health. <a href="https://www.imh.com.sg/CHAT" target="_blank" rel="noopener">Visit CHAT</a></p></div></li>
+        </ol>
+      </div>
+
+      <div class="card soft">
+        <h2>Say it in one line</h2>
+        <p class="muted small">If starting the conversation is the hard part, copy one of these.</p>
+        <ul class="steplist" id="scripts"></ul>
+      </div>
+
+      <div class="card">
+        <h2>Your data</h2>
+        <p class="muted small">Check-ins are stored only in this browser on this device. Nothing is sent to your school or to anyone else.</p>
+        <div class="row">
+          <button type="button" id="clear">Delete all my check-ins</button>
+        </div>
+        <div class="row" id="clear-confirm" hidden>
+          <span class="small">This can't be undone.</span>
+          <button type="button" class="primary" id="clear-yes">Delete</button>
+          <button type="button" id="clear-no">Keep</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="note">Pace Journal supports reflection. It is not a crisis or diagnosis service.</footer>
+</div>
+
+<nav class="tabs" aria-label="Pace Journal">
+  <ul>
+    <li><a href="#today" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Check in</a></li>
+    <li><a href="#patterns" data-tab="patterns"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Patterns</a></li>
+    <li><a href="#steps" data-tab="steps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 19c2-6 5-10 14-14-1 9-6 12-14 14z"/><path d="M5 19l6-6"/></svg>Small steps</a></li>
+    <li><a href="#support" data-tab="support"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Support</a></li>
+  </ul>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+const PACE=[
+  {v:1,label:"Drained",c:"var(--p1)"},{v:2,label:"Low",c:"var(--p2)"},{v:3,label:"Steady",c:"var(--p3)"},
+  {v:4,label:"Good",c:"var(--p4)"},{v:5,label:"Energised",c:"var(--p5)"}];
+const TAGS=["Pressure","Comparison","Energy","Sleep","Family","Friends","Workload","Something good"];
+const RHYTHM=[{k:"sleep",t:"Sleep",d:"7h+"},{k:"move",t:"Move",d:"10 min"},{k:"fuel",t:"Fuel",d:"3 meals"},{k:"pause",t:"Pause",d:"a real break"}];
+const STEPS={
+  Pressure:["Write down the one task that matters most today, and one you can drop.","Work in 25-minute blocks with a 5-minute break between them.","Tell a teacher which deadline feels unmanageable and ask what can move."],
+  Comparison:["Mute one account that leaves you feeling behind, for a week.","Write one thing you can do now that you couldn't do last month.","Compare today with your own last week, not with a classmate."],
+  Energy:["Take a 10-minute walk without your phone.","Eat a proper meal before your next study block.","Lie down for 20 minutes with no screen."],
+  Sleep:["Set a wind-down alarm 30 minutes before bed.","Charge your phone outside your bedroom tonight."],
+  Family:["Use a conversation card: \"This week felt heavy because…\"","Share one thing that went well before talking about grades."],
+  Friends:["Message one trusted friend: \"Free for a short walk?\"","Sit with someone at break instead of revising alone."],
+  Workload:["List everything due; circle only what's due in the next 48 hours.","Ask a friend to study together for one hour."]
+};
+const SCRIPTS=["This week has felt heavier than usual. Can we talk for a bit?","I've been comparing myself a lot lately and it's wearing me down.","I'm not in danger, but I'm not okay. Can you sit with me?","Could I book a time to see the school counsellor this week?"];
+const KEY="pace-journal-v1";
+const $=s=>document.querySelector(s);
+
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"{}");return {entries:d.entries||[],step:d.step||null}}catch(e){return {entries:[],step:null}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+let state=load();
+
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const todayISO=iso(new Date());
+function addDays(isoStr,n){const d=new Date(isoStr+"T12:00:00");d.setDate(d.getDate()+n);return iso(d)}
+$("#today-date").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"short"});
+
+/* example fortnight shown only when no check-ins exist */
+function exampleEntries(){
+  const p=[4,3,3,2,2,3,4,null,3,2,1,2,3,4];
+  const t=[["Something good"],["Workload"],["Pressure","Sleep"],["Comparison","Pressure"],["Comparison","Sleep"],["Friends"],["Something good"],[],["Pressure"],["Comparison","Workload"],["Comparison","Pressure","Sleep"],["Pressure","Family"],["Friends"],["Something good"]];
+  const r=[[1,1,1,0],[1,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0],[1,1,1,1],[1,1,1,1],[0,0,0,0],[1,0,1,0],[0,0,1,0],[0,0,0,0],[0,1,1,0],[1,1,1,1],[1,1,1,1]];
+  const out=[];
+  p.forEach((v,i)=>{if(v==null)return;out.push({date:addDays(todayISO,i-13),pace:v,tags:t[i],note:"",rhythm:{sleep:!!r[i][0],move:!!r[i][1],fuel:!!r[i][2],pause:!!r[i][3]}})});
+  return out;
+}
+
+/* ---------- check-in form ---------- */
+let draft={pace:null,tags:[],rhythm:{sleep:false,move:false,fuel:false,pause:false}};
+const existing=state.entries.find(e=>e.date===todayISO);
+if(existing){draft={pace:existing.pace,tags:[...existing.tags],rhythm:{...existing.rhythm}};$("#note").value=existing.note||"";$("#checkin-status").textContent="You've checked in today. Change anything and save again to update it.";$("#save").textContent="Update check-in"}
+
+function renderForm(){
+  $("#scale").innerHTML=PACE.map(p=>`<button type="button" id="pace-${p.v}" aria-pressed="${draft.pace===p.v}" style="--c:${p.c}"><span class="dot" aria-hidden="true"></span>${p.label}<span class="sr"> (${p.v} of 5)</span></button>`).join("");
+  $("#tags").innerHTML=TAGS.map((t,i)=>`<button type="button" id="tag-${i}" aria-pressed="${draft.tags.includes(t)}">${t}</button>`).join("");
+  $("#rhythm").innerHTML=RHYTHM.map(r=>`<button type="button" id="rh-${r.k}" aria-pressed="${draft.rhythm[r.k]}"><b>${r.t}</b><span class="muted">${r.d}</span></button>`).join("");
+  $("#save").disabled=!draft.pace;
+}
+$("#scale").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;draft.pace=+b.id.split("-")[1];startTimer();renderForm();$("#"+b.id).focus()});
+$("#tags").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const t=TAGS[+b.id.split("-")[1]];draft.tags=draft.tags.includes(t)?draft.tags.filter(x=>x!==t):[...draft.tags,t];startTimer();renderForm();$("#"+b.id).focus()});
+$("#rhythm").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=b.id.slice(3);draft.rhythm[k]=!draft.rhythm[k];renderForm();$("#"+b.id).focus()});
+
+let t0=null,tick=null;
+function startTimer(){if(t0)return;t0=Date.now();tick=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);$("#timer").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")},1000)}
+
+$("#checkin").addEventListener("submit",e=>{
+  e.preventDefault(); if(!draft.pace)return;
+  const entry={date:todayISO,pace:draft.pace,tags:[...draft.tags],note:$("#note").value.trim(),rhythm:{...draft.rhythm}};
+  state.entries=state.entries.filter(x=>x.date!==todayISO).concat(entry).sort((a,b)=>a.date<b.date?-1:1);
+  save(); clearInterval(tick);
+  const secs=t0?Math.round((Date.now()-t0)/1000):null;
+  toast(secs&&secs<=90?`Saved in ${secs} seconds.`:"Check-in saved.");
+  $("#checkin-status").textContent="You've checked in today. Change anything and save again to update it.";
+  $("#save").textContent="Update check-in";
+  renderAll();
+  if(!state.step||state.step.date!==todayISO){location.hash="#steps"}
+});
+
+/* ---------- small steps ---------- */
+function suggestedOrder(){
+  const recent=state.entries.slice(-7);const count={};
+  recent.forEach(e=>e.tags.forEach(t=>{if(STEPS[t])count[t]=(count[t]||0)+(e.pace<=2?2:1)}));
+  const today=state.entries.find(e=>e.date===todayISO);
+  if(today)today.tags.forEach(t=>{if(STEPS[t])count[t]=(count[t]||0)+5});
+  return Object.keys(STEPS).sort((a,b)=>(count[b]||0)-(count[a]||0));
+}
+function renderSteps(){
+  const order=suggestedOrder();const today=state.entries.find(e=>e.date===todayISO);
+  $("#step-groups").innerHTML=order.map((k,gi)=>{
+    const hot=today&&today.tags.includes(k);
+    return `<div class="card${hot?" lilac":""}"><div class="row between"><h2>${k}</h2>${hot?'<span class="pill">Tagged today</span>':""}</div>
+    <ul class="steplist">${STEPS[k].map((s,i)=>{const chosen=state.step&&state.step.date===todayISO&&state.step.text===s;
+      return `<li><span>${s}</span><button type="button" id="pick-${gi}-${i}" data-k="${k}" data-i="${i}" ${chosen?'aria-pressed="true" class="primary"':""}>${chosen?"Chosen":"Choose"}</button></li>`}).join("")}</ul></div>`}).join("");
+}
+$("#step-groups").addEventListener("click",e=>{const b=e.target.closest("button[data-k]");if(!b)return;
+  state.step={date:todayISO,text:STEPS[b.dataset.k][+b.dataset.i],done:false};save();renderAll();toast("Step chosen. It's on your check-in page.")});
+
+function renderTodayStep(){
+  const s=state.step&&state.step.date===todayISO?state.step:null;
+  if(!s){$("#step-text").textContent=state.entries.find(e=>e.date===todayISO)?"Pick one small step that fits today.":"Save a check-in, then pick one small step that fits today.";$("#step-actions").innerHTML='<a class="btn" href="#steps">Browse small steps</a>';return}
+  $("#step-text").innerHTML=s.done?`<s>${esc(s.text)}</s> <span class="pill">Done</span>`:esc(s.text);
+  $("#step-actions").innerHTML=s.done?'<button type="button" id="undo-step">Mark as not done</button>':'<button type="button" class="primary" id="done-step">Mark as done</button><a class="btn" href="#steps">Change step</a>';
+}
+document.addEventListener("click",e=>{
+  if(e.target.id==="done-step"){state.step.done=true;save();renderTodayStep();toast("Nice. That counts.");$("#undo-step")&&$("#undo-step").focus()}
+  if(e.target.id==="undo-step"){state.step.done=false;save();renderTodayStep()}
+});
+
+/* ---------- patterns ---------- */
+function renderPatterns(){
+  const isExample=state.entries.length===0;
+  const data=isExample?exampleEntries():state.entries;
+  $("#example-banner").hidden=!isExample;
+  const days=[...Array(14)].map((_,i)=>addDays(todayISO,i-13));
+  const byDate=Object.fromEntries(data.map(e=>[e.date,e]));
+  const win=days.map(d=>byDate[d]).filter(Boolean);
+  const avg=win.length?(win.reduce((a,e)=>a+e.pace,0)/win.length):0;
+  const heavy=win.filter(e=>e.pace<=2).length;
+  let streak=0;for(let i=0;;i++){if(byDate[addDays(todayISO,-i)])streak++;else if(i===0)continue;else break}
+  $("#stats").innerHTML=`<div class="stat"><b>${win.length}</b><span>check-ins in 14 days</span></div><div class="stat"><b>${avg?avg.toFixed(1):"–"}</b><span>average pace (1–5)</span></div><div class="stat"><b>${heavy}</b><span>heavy days (pace 1–2)</span></div>`;
+
+  // chart
+  const W=520,H=210,L=30,R=10,T=12,B=34,cw=(W-L-R)/14;
+  const y=v=>T+(H-T-B)*(1-(v-1)/4);
+  let g=`<title id="chart-title">Pace for each of the last 14 days</title>`;
+  for(let v=1;v<=5;v++){g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`}
+  const pts=[];
+  days.forEach((d,i)=>{const e=byDate[d];const cx=L+cw*i+cw/2;
+    const lab=new Date(d+"T12:00:00");const show=i%2===1||i===13;
+    if(show)g+=`<text x="${cx}" y="${H-12}" text-anchor="middle" font-size="11" fill="${i===13?"var(--ink)":"var(--muted)"}" font-weight="${i===13?700:400}">${i===13?"Today":lab.getDate()+"/"+(lab.getMonth()+1)}</text>`;
+    if(e){pts.push([cx,y(e.pace)]);}else{pts.push(null)}
+  });
+  let path="";pts.forEach((p,i)=>{if(!p)return;path+=(i===0||!pts[i-1]?"M":"L")+p[0].toFixed(1)+" "+p[1].toFixed(1)+" "});
+  g+=`<path d="${path}" fill="none" stroke="var(--sage)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  days.forEach((d,i)=>{const e=byDate[d];if(!e)return;const p=pts[i];g+=`<circle cx="${p[0]}" cy="${p[1]}" r="${i===13?7:5.5}" fill="${PACE[e.pace-1].c}" stroke="var(--surface)" stroke-width="2"><title>${d}: ${PACE[e.pace-1].label}</title></circle>`});
+  $("#chart").innerHTML=g;
+
+  // triggers on heavy days
+  const counts={};win.filter(e=>e.pace<=2).forEach(e=>e.tags.filter(t=>t!=="Something good").forEach(t=>counts[t]=(counts[t]||0)+1));
+  const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]);const max=Math.max(1,...rows.map(r=>r[1]));
+  $("#trigger-bars").innerHTML=rows.length?rows.map(([t,n])=>`<div class="bar"><span>${t}</span><div class="track" aria-hidden="true"><div class="fill" style="width:${n/max*100}%"></div></div><span class="n">${n}</span></div>`).join(""):'<p class="muted small">No heavy days in this fortnight.</p>';
+
+  // insight: rhythm on good vs heavy days
+  const good=win.filter(e=>e.pace>=4),bad=win.filter(e=>e.pace<=2);
+  const rate=(arr,k)=>arr.length?arr.filter(e=>e.rhythm&&e.rhythm[k]).length/arr.length:0;
+  let best=null;RHYTHM.forEach(r=>{const diff=rate(good,r.k)-rate(bad,r.k);if(!best||diff>best.diff)best={...r,diff,g:rate(good,r.k),b:rate(bad,r.k)}});
+  const top=rows[0];
+  $("#insight").textContent=(good.length&&bad.length&&best&&best.diff>0)
+    ?`On your better days you ticked ${best.t.toLowerCase()} ${Math.round(best.g*100)}% of the time, compared with ${Math.round(best.b*100)}% on heavy days.${top?` ${top[0]} came up most on heavy days, so the ${top[0].toLowerCase()} steps may be a good place to start.`:""}`
+    :"Keep checking in. After a few good days and a few heavy ones, this shows which rest and rhythm habits line up with your better days.";
+}
+
+/* ---------- support ---------- */
+$("#scripts").innerHTML=SCRIPTS.map((s,i)=>`<li><span>"${s}"</span><button type="button" data-copy="${s.replace(/"/g,"&quot;")}" id="script-${i}">Copy</button></li>`).join("");
+document.addEventListener("click",e=>{const b=e.target.closest("[data-copy]");if(!b)return;
+  const txt=b.dataset.copy;
+  const done=()=>{const o=b.textContent;b.textContent="Copied";setTimeout(()=>b.textContent=o,1400)};
+  try{navigator.clipboard.writeText(txt).then(done,()=>selectNear(b))}catch(err){selectNear(b)}});
+function selectNear(b){const n=b.parentElement.querySelector(".num")||b.parentElement.querySelector("span");if(!n)return;const r=document.createRange();r.selectNodeContents(n);const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Selected. Copy it from here.")}
+$("#clear").addEventListener("click",()=>{$("#clear-confirm").hidden=false;$("#clear-no").focus()});
+$("#clear-no").addEventListener("click",()=>{$("#clear-confirm").hidden=true;$("#clear").focus()});
+$("#clear-yes").addEventListener("click",()=>{state={entries:[],step:null};try{localStorage.removeItem(KEY)}catch(e){}
+  draft={pace:null,tags:[],rhythm:{sleep:false,move:false,fuel:false,pause:false}};$("#note").value="";$("#save").textContent="Save check-in";
+  $("#checkin-status").textContent="How is your pace today? Pick what fits; there is no right answer.";$("#clear-confirm").hidden=true;renderAll();toast("All check-ins deleted.")});
+
+/* ---------- shared ---------- */
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+function renderLowStreak(){const last=[0,1,2].map(i=>state.entries.find(e=>e.date===addDays(todayISO,-i)));$("#low-streak").hidden=!(last.every(e=>e&&e.pace<=2))}
+function renderAll(){renderForm();renderTodayStep();renderSteps();renderPatterns();renderLowStreak()}
+
+const VIEWS=["today","patterns","steps","support"];
+function route(){const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):"today";
+  document.querySelectorAll("[data-view]").forEach(s=>s.hidden=s.dataset.view!==v);
+  document.querySelectorAll("[data-tab]").forEach(a=>{if(a.dataset.tab===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",()=>{route();$("#main").focus({preventScroll:true})});
+renderAll();route();
+})();
+</script>
+</body>
+</html>
